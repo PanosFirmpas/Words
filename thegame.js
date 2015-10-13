@@ -1,17 +1,66 @@
 
 window.onload = function() {
+        // var givemeone = function () {return 'one';};
+        
 
+
+
+        var ARCHETYPES = {
+            "x" : {
+                'hp' :  50,
+                'damage' : 5,
+                
+                'look_where_i_hit' : function (obj) {
+
+                                        return  game.matrix[obj.m_y + 1 * obj.ahead][obj.m_x];
+                                    },
+                'look_where_i_move' : function (obj) {
+                                        return  game.matrix[obj.m_y + 1 * obj.ahead][obj.m_x];
+                                    }
+
+            },
+
+            "o" : {
+                'hp' :  5,
+                'damage' : 15,
+                
+                'look_where_i_hit' : function (obj) {
+
+                                        return  game.matrix[obj.m_y + 2 * obj.ahead][obj.m_x];
+                                    },
+                'look_where_i_move' : function (obj) {
+                                        return  game.matrix[obj.m_y + 1 * obj.ahead][obj.m_x];
+                                    }
+
+            },
+        };
+
+
+
+        
                 //  Here is a custom game object
-        Unit = function (game, m_x, m_y, team, hp, act_func) {
+        Unit = function (game, m_x, m_y, team, letter) {
 
-            
-            // this.game = game;
 
             this.m_x = m_x;
             this.m_y = m_y;
-            this.hp = hp;
-            this.act = act_func;
+            this.team = team;
+            this.letter = letter;
 
+            //used to reverse matrix position references according to team
+            if (this.team === 'a')
+                {this.ahead = -1; }
+            else
+                {this.ahead = 1; }
+            
+            
+
+            this.props = ARCHETYPES[this.letter];
+            this.hp = this.props.hp; //bad design, too tired to figure it out, just want it to work
+            this.max_hp = this.props.hp;
+
+            
+        
 
 
             var x = m_x * 40 +20;
@@ -20,7 +69,7 @@ window.onload = function() {
             Phaser.Sprite.call(this, game, x, y, 'ship');
             this.anchor.setTo(0.5);
 
-            this.team = team;
+            
 
             
             if (this.team == 'b'){
@@ -30,12 +79,10 @@ window.onload = function() {
 
         };
 
+        
+
         Unit.prototype = Object.create(Phaser.Sprite.prototype);
         Unit.prototype.constructor = Unit;
-
-        /**
-         * Automatically called by World.update
-         */
 
         Unit.prototype.move = function() {
 
@@ -59,50 +106,63 @@ window.onload = function() {
 
          Unit.prototype.get_hit = function(damage) {
 
+
+            function RGBtoHEX(r, g, b) {
+
+                return r << 16 | g << 8 | b;
+
+            }
+
+            
+
+
             this.hp -= damage;
             
+            this.tint = RGBtoHEX(this.hp/parseFloat(this.max_hp) * 256.,0,0);
+            
             if (this.hp <=0){
-                var explosion = explosions.getFirstExists(false);
-                explosion.reset(this.position.x, this.position.y);
-                explosion.play('kaboom', 30, false, true);
+                this.die_gracefully();
             }
 
 
          };
 
-         //TODO
-         //Un-hardcode dimentions and background grid
-         // Resolution menu ?
-         // Can you scale everything up and down  to handle resolutions?
+        Unit.prototype.die_gracefully = function() {
+
+            game.matrix[this.m_y][this.m_x] = 0;
+
+            var explosion = explosions.getFirstExists(false);
+            explosion.reset(this.position.x, this.position.y);
+            explosion.play('kaboom', 30, false, true);
+
+            this.kill();
+
+        };
+
+        Unit.prototype.act = function() {
+                var where_i_move = this.props['look_where_i_move'](this);
+
+                var where_i_hit = this.props['look_where_i_hit'](this);
+            
 
 
-        var act = function() {
-            var there;
-            if (this.team == 'b') {
-                there = game.matrix[this.m_y +1][this.m_x];
-
-                if ( there === 0){
-
-                    this.move(game.matrix);
-                }
-                else{
-                    //
-                }
-
-            }
-            else{
-                there = game.matrix[this.m_y - 1][this.m_x];
-                if ( there === 0){
+                if ( where_i_move === 0){
+                    
 
                     this.move();
                 }
                 else{
-                    there.get_hit(10);
+
+                    if (where_i_hit != 0){
+                        where_i_hit.get_hit(this.props.damage);
+                    }
+
                 }
-                
-            }
 
         };
+
+
+        
 
         // var act_ranged = function() {
             
@@ -175,7 +235,7 @@ window.onload = function() {
             
         }
 
-        console.log(game.matrix[5]); //TBD
+        
 
 
 
@@ -200,6 +260,7 @@ window.onload = function() {
 
             invader.anchor.x = 0.5;
             invader.anchor.y = 0.5;
+            invader.scale.set(0.3,0.3);
             invader.animations.add('kaboom');
 
         }
@@ -209,7 +270,7 @@ window.onload = function() {
 
             backgroundSprite = game.add.tileSprite(0,0,game.width,game.height,'bg');
 
-            game.time.events.loop(Phaser.Timer.SECOND *2, units_act, this);
+            game.time.events.loop(Phaser.Timer.SECOND , units_act, this);
             
             
             create_units();
@@ -241,23 +302,36 @@ window.onload = function() {
             TeamA = game.add.group();
             TeamB = game.add.group();
 
-
-            for (var i = 0; i < 20; i++)
+            for (var i = 5; i < 12; i++)
             {
-                var row = 10;
+                var row = 11;
                 
-                unit = new Unit(game, i, row, 'a', 20, act);
+                unit = new Unit(game, i, row, 'a', 'o');
                 game.matrix[row][i] = unit;
                 
                 TeamA.add(unit);
 
             }
+
+            for (var i = 0; i < 20; i++)
+            {
+                var row = 10;
+                
+                unit = new Unit(game, i, row, 'a', 'x');
+                game.matrix[row][i] = unit;
+                
+                TeamA.add(unit);
+
+            }
+
+
+
             for (var i = 0; i < 20; i++)
             {   
                 var row = 5;
                 
                 
-                unit = new Unit(game, i, row, 'b', 20, act);
+                unit = new Unit(game, i, row, 'b', 'x');
 
                 game.matrix[row][i] = unit;
                 
@@ -270,7 +344,8 @@ window.onload = function() {
 
         function units_act () {
             
-
+            /// They act by order of "who was created first"
+            /// A more sophisticated approach would be better
             TeamA.forEachExists(function (unit) {
                 unit.act();
 
