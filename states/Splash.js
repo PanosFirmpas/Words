@@ -31,6 +31,8 @@ Splash.prototype = {
     game.load.spritesheet('invader', 'assets/images/invader32x32x4.png', 32, 32);
     game.load.spritesheet('kaboom', 'assets/images/explode.png', 128, 128);
 
+    game.load.spritesheet('sprsh_input', 'assets/images/input_spritesheet.png', 40, 40);
+    
   },
 
   loadFonts: function () {

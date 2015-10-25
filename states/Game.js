@@ -7,24 +7,24 @@ Game.prototype = {
 
         var unit = new Unit(game, command.where_x , command.where_y, command.team , command.letter);
         TeamA.add(unit);// should be removed at soe point
-        game.get_unit[command.ui] = unit;
+        game.level.get_unit[command.ui] = unit;
         return 0;
     },
     'move' : function (command) {
-        var unit = game.get_unit[command.ui];        
+        var unit = game.level.get_unit[command.ui];        
         unit.move(command.positions_y, command.positions_x);
         return 0;
         
     },
     'attack' : function (command) {
-        var unit = game.get_unit[command.ui];
-        var target = game.get_unit[command.target];
+        var unit = game.level.get_unit[command.ui];
+        var target = game.level.get_unit[command.target];
         unit.hit(0,0);
         target.get_hit(0);
         return 0;
     },
     'die' : function (command) {
-        var unit = game.get_unit[command.ui];
+        var unit = game.level.get_unit[command.ui];
         unit.die_gracefully();
         return 0;
     },
@@ -44,20 +44,25 @@ Game.prototype = {
 
 
   create: function () {
+    game.level= {};
+
     music.stop();
     this.stage.disableVisibilityChange = false; // dont kno what this is 
 
     //key is a unique identifier 'a0' , 'a1' etc that is shared between server and client
     // The value is the sprite object so it can be accessed directly
-    game.get_unit = {};
+    game.level.get_unit = {};
+    game.level.get_input_field = {};
 
     this.ask_initial_configuration();
+
+
 
     //
     // this.receive_commands();
 
     //Generator for the commands instead
-    game.parsed_commands = this.parse_server_side_commands('tbd');
+    game.level.parsed_commands = this.parse_server_side_commands('tbd');
     // Call it every 2 seconds
     game.time.events.loop(Phaser.Timer.SECOND *2 , this.consume_command, this);
 
@@ -67,7 +72,7 @@ Game.prototype = {
   },
 
   consume_command : function(){
-    var command = game.parsed_commands.next().value;
+    var command = game.level.parsed_commands.next().value;
     if (command === undefined){
       return 1;
     }
@@ -149,8 +154,26 @@ Game.prototype = {
   },
 
   ask_initial_configuration : function  () {
-    //Configure Background
-    game.add.tileSprite(0,0,game.width,game.height,'game-bg');
+    //Grid stuff
+    game.level.tile_size = 20;
+
+    //How many grip points?
+    game.level.gp_x = 64;
+    game.level.gp_y = 32;
+
+    //How many pixels do I need?
+    game.level.i_need_x = game.level.tile_size * game.level.gp_x;
+    game.level.i_need_y = game.level.tile_size * game.level.gp_y;
+
+    game.level.grid_offset_x = 4;
+    game.level.grid_offset_y = 10;
+
+        //Configure Background
+    tilesprite = game.add.tileSprite(game.level.grid_offset_x, game.level.grid_offset_y, game.level.i_need_x, game.level.i_need_y,'game-bg');
+    tilesprite.tileScale.y = 0.5;
+    tilesprite.tileScale.x = 0.5;
+
+    game.level.ship_scale = 0.5;
 
     //Make matrix
     //
@@ -174,12 +197,40 @@ Game.prototype = {
     //add initial units
     TeamA = game.add.group();
     TeamB = game.add.group();
+    InputFields = game.add.group();
 
     //init explosions
     explosions = game.add.group();
     explosions.createMultiple(30, 'kaboom');
     explosions.forEach(this.setupExplosion, this);
 
+
+
+    //make the input field
+    game.level.focused_input = {'turn_off': function (){}, 'handle_keypress' : {}};
+    var button;
+    for(var row = 28; row < 32; row++) {
+      game.level.get_input_field[row] = {};
+      for(var col = 0; col < 64; col++) {
+        button = new InputField(game, col, row, 'a', this);
+        game.level.get_input_field[row][col] = button;
+        InputFields.add(button);
+      }
+    }
+
+    game.input.keyboard.addCallbacks(this, this.handle_keypress);
+
+
+
+    // button = game.add.button(400,400, 'sprsh_input', button_got_clicked, this, 2, 1, 0);
+    //Hmmmmmmmm
+    // TeamA.add(inputfield);
+
+
+  },
+  handle_keypress : function(keypress) {
+
+    game.level.focused_input.handle_keypress(keypress);
 
   },
 
@@ -207,3 +258,6 @@ Game.prototype = {
 
 
 };
+
+
+

@@ -1,4 +1,4 @@
-var game = new Phaser.Game(20*40, 16*40, Phaser.AUTO, 'game'), Main = function () {};
+var game = new Phaser.Game(1480, 720, Phaser.AUTO, 'game'), Main = function () {};
 
 Main.prototype = {
 
@@ -10,6 +10,7 @@ Main.prototype = {
     game.load.script('utils',   'lib/utils.js');
     game.load.script('splash',  'states/Splash.js');
     game.load.script('Units', 'lib/units.js');
+    game.load.script('Inputfields', 'lib/input_field.js');
   },
 
   create: function () {
