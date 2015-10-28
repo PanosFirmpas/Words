@@ -9,12 +9,12 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="1040"
+   width="1240"
    height="40"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.5 r10040"
-   sodipodi:docname="FreeSerif.png"
+   sodipodi:docname="FreeSerif.svg"
    inkscape:export-filename="/home/panos/Desktop/FreeSerif.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
@@ -27,9 +27,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.9899495"
-     inkscape:cx="285.14149"
-     inkscape:cy="166.01619"
+     inkscape:zoom="1.4"
+     inkscape:cx="9.5416032"
+     inkscape:cy="115.44627"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -68,8 +68,8 @@
      style="display:inline">
     <g
        id="g3099"
-       transform="translate(0,200.00002)"
-       style="opacity:1;fill:#ffffff">
+       transform="translate(40,200.00002)"
+       style="fill:#ffffff">
       <g
          transform="translate(0,-4.5999782)"
          id="g3116"

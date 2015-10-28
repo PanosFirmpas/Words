@@ -70,6 +70,8 @@ Game.prototype = {
     // Call it every 2 seconds
     game.time.events.loop(Phaser.Timer.SECOND *2 , this.consume_command, this);
 
+    game.time.events.loop(Phaser.Timer.SECOND /3 , this.move_teamA, this);
+
     //Useful code for looping events
     // game.time.events.loop(Phaser.Timer.SECOND , this.receive_commands, this);
     
@@ -206,6 +208,27 @@ Game.prototype = {
     TeamB = game.add.group();
     InputFields = game.add.group();
 
+    InputFields.collect_input = function(){
+      
+      //for later use
+      var input = {};
+      this.forEachAlive(function(item) {
+
+                    if ( !(item.g_x in input) ){
+                      input[item.g_x] = {};
+                    }
+                    input[item.g_x][item.g_y] = " abcdefghijklmnopqrstuvwxyz"[item.unit_image.frame];
+                    
+                    item.spawn_unit();
+                    item.clear_image();
+                    
+
+
+      },this);
+
+      
+    };
+
     //init explosions
     explosions = game.add.group();
     explosions.createMultiple(30, 'kaboom');
@@ -226,6 +249,8 @@ Game.prototype = {
         InputFields.add(button);
       }
     }
+
+
 
     game.input.keyboard.addCallbacks(this, this.handle_keypress);
 
@@ -250,6 +275,16 @@ Game.prototype = {
         explosion_sp.scale.set(0.3,0.3);
         explosion_sp.animations.add('kaboom');
     },
+  
+  move_teamA : function(keypress) {
+    TeamA.forEachExists(function (unit) {
+            unit.act();
+        });
+
+    
+
+    },
+
   // units_act : function () {
   //       /// They act by order of "who was created first"
   //       /// A more sophisticated approach would be better
