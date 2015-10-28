@@ -32,6 +32,7 @@ Splash.prototype = {
     game.load.spritesheet('kaboom', 'assets/images/explode.png', 128, 128);
 
     game.load.spritesheet('sprsh_input', 'assets/images/input_spritesheet.png', 40, 40);
+    game.load.spritesheet('freeserif', 'assets/images/FreeSerif.svg',40,40);
     
   },
 
@@ -41,7 +42,7 @@ Splash.prototype = {
         families: ['TheMinion'],
         urls: ['assets/style/theminion.css']
       }
-    }
+    };
   },
 
   init: function () {

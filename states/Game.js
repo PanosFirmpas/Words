@@ -5,9 +5,12 @@ Game.prototype = {
   actions : {
     'put' : function (command) {
 
-        var unit = new Unit(game, command.where_x , command.where_y, command.team , command.letter);
+        var unit = new Unit(game, command.where_x , command.where_y, command.team , command.letter, 'freeserif');
         TeamA.add(unit);// should be removed at soe point
         game.level.get_unit[command.ui] = unit;
+        if (command.ui > game.level.guid_max){
+          game.level.guid_max = command.ui;
+        }
         return 0;
     },
     'move' : function (command) {
@@ -52,6 +55,7 @@ Game.prototype = {
     //key is a unique identifier 'a0' , 'a1' etc that is shared between server and client
     // The value is the sprite object so it can be accessed directly
     game.level.get_unit = {};
+    game.level.guid_max = 0;
     game.level.get_input_field = {};
 
     this.ask_initial_configuration();
@@ -154,6 +158,9 @@ Game.prototype = {
   },
 
   ask_initial_configuration : function  () {
+    
+
+
     //Grid stuff
     game.level.tile_size = 20;
 
@@ -208,10 +215,12 @@ Game.prototype = {
 
     //make the input field
     game.level.focused_input = {'turn_off': function (){}, 'handle_keypress' : {}};
+    game.level.direction_of_writting = 'right';
     var button;
-    for(var row = 28; row < 32; row++) {
+    game.level.input_field_depth = 4;
+    for(var row = game.level.gp_y - game.level.input_field_depth; row < game.level.gp_y; row++) {
       game.level.get_input_field[row] = {};
-      for(var col = 0; col < 64; col++) {
+      for(var col = 0; col < game.level.gp_x; col++) {
         button = new InputField(game, col, row, 'a', this);
         game.level.get_input_field[row][col] = button;
         InputFields.add(button);
