@@ -44,8 +44,7 @@ Game.prototype = {
     this.optionCount = 1; //Dont know what this is
   },
 
-
-
+  //Create is the first main function of the game, after that, update is the function that is calledrepeatedly
   create: function () {
     game.level= {};
 
@@ -58,23 +57,17 @@ Game.prototype = {
     game.level.guid_max = 0;
     game.level.get_input_field = {};
 
+    //This will talk to the server i guess? for now its some demo stuff
     this.ask_initial_configuration();
 
-
-
-    //
     // this.receive_commands();
-
     //Generator for the commands instead
     game.level.parsed_commands = this.parse_server_side_commands('tbd');
     // Call it every 2 seconds
     game.time.events.loop(Phaser.Timer.SECOND *2 , this.consume_command, this);
 
+    //demo to show movement
     game.time.events.loop(Phaser.Timer.SECOND /3 , this.move_teamA, this);
-
-    //Useful code for looping events
-    // game.time.events.loop(Phaser.Timer.SECOND , this.receive_commands, this);
-    
   },
 
   consume_command : function(){
@@ -87,25 +80,13 @@ Game.prototype = {
   },
   
   receive_commands : function (server_thing) {
-    
-    
     // for (var ci in parsed_commands) {
     //     var command = parsed_commands[ci];
     //     var do_this = this.actions[command.action];
     //     //confirm success ?
     //     var command_test = do_this(command);
-    
-
-        
-        
-    
-
   },
-//   function* idMaker(){
-//   var index = 0;
-//   while(index < 3)
-//     yield index++;
-// }
+
   parse_server_side_commands : function* (server_thing) {
 
     //placeholder/example input from server or right after translating what th server sent
@@ -160,9 +141,6 @@ Game.prototype = {
   },
 
   ask_initial_configuration : function  () {
-    
-
-
     //Grid stuff
     game.level.tile_size = 20;
 
@@ -184,25 +162,6 @@ Game.prototype = {
 
     game.level.ship_scale = 0.5;
 
-    //Make matrix
-    //
-    //Should probably be removed, but lets keep it for now
-    //
-    // var rows = 16;
-    // var columns = 20;
-    
-    // game.matrix = new Array(rows);
-
-    // for(var i = 0; i < rows; i++) {
-    //     game.matrix[i] = new Array(columns);
-    // }
-
-    // for(var i = 0; i < rows; i++) {
-    //     for(var j = 0; j < columns; j++) {
-    //         game.matrix[i][j] = 0;
-    //     }
-    // }
-
     //add initial units
     TeamA = game.add.group();
     TeamB = game.add.group();
@@ -221,20 +180,14 @@ Game.prototype = {
                     
                     item.spawn_unit();
                     item.clear_image();
-                    
-
-
       },this);
-
-      
+      console.log(input);
     };
 
     //init explosions
     explosions = game.add.group();
     explosions.createMultiple(30, 'kaboom');
     explosions.forEach(this.setupExplosion, this);
-
-
 
     //make the input field
     game.level.focused_input = {'turn_off': function (){}, 'handle_keypress' : {}};
@@ -250,22 +203,11 @@ Game.prototype = {
       }
     }
 
-
-
     game.input.keyboard.addCallbacks(this, this.handle_keypress);
-
-
-
-    // button = game.add.button(400,400, 'sprsh_input', button_got_clicked, this, 2, 1, 0);
-    //Hmmmmmmmm
-    // TeamA.add(inputfield);
-
-
   },
   handle_keypress : function(keypress) {
-
+    //This is a bit awkward
     game.level.focused_input.handle_keypress(keypress);
-
   },
 
 
@@ -278,28 +220,9 @@ Game.prototype = {
   
   move_teamA : function(keypress) {
     TeamA.forEachExists(function (unit) {
-            unit.act();
+            unit.move(-1,0);
         });
-
-    
-
     },
-
-  // units_act : function () {
-  //       /// They act by order of "who was created first"
-  //       /// A more sophisticated approach would be better
-  //       TeamA.forEachExists(function (unit) {
-  //           unit.act();
-  //       });
-
-  //       if (TeamA.countLiving() === 0 && TeamB.countLiving() === 0){
-  //         this.game.state.start("GameOver");
-
-  //       }
-
-  //   }
-
-
 
 };
 
